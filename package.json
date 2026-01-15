@@ -2,14 +2,14 @@
   "name": "m365-assess",
   "version": "1.0.0",
   "description": "Microsoft 365 Security Assessment CLI - Wrapper for ScubaGear with automated reporting",
-  "main": "index.js",
+  "main": "audit.js",
   "type": "module",
   "bin": {
-    "m365-assess": "./index.js"
+    "m365-assess": "./audit.js"
   },
   "scripts": {
-    "start": "node index.js",
-    "assess": "node index.js"
+    "start": "node audit.js",
+    "audit": "node audit.js"
   },
   "dependencies": {
     "nunjucks": "^3.2.4",

@@ -72,13 +72,13 @@ This template is used by pandoc as the reference document for styling. Create a 
 ### Basic Command
 
 ```bash
-node index.js --customer "Acme Corp" --tenant-id "12345678-1234-1234-1234-123456789abc"
+node audit.js --customer "Acme Corp" --tenant-id "12345678-1234-1234-1234-123456789abc"
 ```
 
 ### Full Options
 
 ```bash
-node index.js \
+node audit.js \
   --customer "Acme Corp" \
   --tenant-id "12345678-1234-1234-1234-123456789abc" \
   --team-name "Security Advisory Team" \
