@@ -1,0 +1,30 @@
+{
+  "name": "m365-assess",
+  "version": "1.0.0",
+  "description": "Microsoft 365 Security Assessment CLI - Wrapper for ScubaGear with automated reporting",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "m365-assess": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "assess": "node index.js"
+  },
+  "dependencies": {
+    "nunjucks": "^3.2.4",
+    "yargs": "^17.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "microsoft365",
+    "security",
+    "assessment",
+    "scubagear",
+    "compliance"
+  ],
+  "author": "",
+  "license": "MIT"
+}
