@@ -18,8 +18,7 @@ import { mapToBundle } from './lib/map-to-bundle.js';
 import { scoreBundle } from './lib/score.js';
 import { calculateScoreMovement } from './lib/score-movement.js';
 import { processThemes } from './lib/theme-engine.js';
-import { renderMarkdown, createDefaultTemplate } from './lib/render-md.js';
-import { renderDocxFromPaths } from './lib/render-docx.js';
+import { renderDocxNative } from './lib/render-docx-native.js';
 
 /**
  * Print banner
@@ -56,7 +55,6 @@ function printSummary(paths, bundle, startTime) {
   📄 Raw Results:   ${paths.rawScubaGearDir}/results.json
   📋 Bundle:        ${paths.bundlePath}
   📋 Scored Bundle: ${paths.scoredBundlePath}
-  📝 Report (MD):   ${paths.reportMdPath}
   📑 Report (DOCX): ${paths.reportDocxPath}
   📜 Log:           ${paths.logPath}
 
@@ -93,9 +91,6 @@ async function main() {
     appendLog(paths.logPath, `Tenant: ${config.tenantId}`);
     appendLog(paths.logPath, `Started: ${getIsoTimestamp()}`);
 
-    // Create default template if needed (for development)
-    createDefaultTemplate(config.templatesDir);
-
     // Step 1: Run ScubaGear (or use existing results)
     let resultsPath;
     if (config.skipScubaGear && config.scubagearResults) {
@@ -116,11 +111,8 @@ async function main() {
     // Step 5: Process themes
     const themeData = processThemes(scoredBundle);
 
-    // Step 6: Render Markdown report
-    renderMarkdown(scoredBundle, themeData, scoreMovement, config, paths);
-
-    // Step 7: Render Word document (AUTOMATED - no manual step!)
-    await renderDocxFromPaths(config, paths);
+    // Step 6: Generate Word document directly from JSON
+    await renderDocxNative(scoredBundle, themeData, scoreMovement, config, paths);
 
     // Final log entry
     appendLog(paths.logPath, `Completed: ${getIsoTimestamp()}`);
