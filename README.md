@@ -10,8 +10,7 @@ This tool automates the entire M365 security assessment workflow:
 2. Captures and normalizes JSON output
 3. Maps findings to canonical security themes
 4. Computes weighted security scores
-5. Generates a professional Markdown report
-6. Converts to Word document using your branded template
+5. Generates a professional Word report using native DOCX templating
 
 **One command. One finished report.**
 
@@ -21,7 +20,6 @@ This tool automates the entire M365 security assessment workflow:
 
 - **Node.js** >= 18.0.0
 - **PowerShell 7+** (pwsh) - [Install Guide](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
-- **Pandoc** - [Install Guide](https://pandoc.org/installing.html)
 
 ### macOS Installation
 
@@ -29,12 +27,8 @@ This tool automates the entire M365 security assessment workflow:
 # Install PowerShell
 brew install powershell/tap/powershell
 
-# Install Pandoc
-brew install pandoc
-
-# Verify installations
+# Verify installation
 pwsh --version
-pandoc --version
 ```
 
 ### ScubaGear Setup
@@ -57,15 +51,27 @@ npm install
 
 ## Setup
 
-### Word Template (Required)
+### Word Template
 
-Place your branded Word template at:
+The tool includes a pre-built Word template with docxtemplater tags at:
 
 ```
-templates/M365_Security_Assessment_Template.docx
+templates/report_template.docx
 ```
 
-This template is used by pandoc as the reference document for styling. Create a Word document with your company branding, headers, footers, and styles - pandoc will apply these to the generated report.
+**Template Customization:**
+- Edit the template directly in Microsoft Word for styling changes (fonts, colors, headers, footers)
+- Be careful not to modify the docxtemplater tags (text in curly braces like `{customer_name}`)
+
+**Regenerating Template:**
+If the template becomes corrupted or you need structural changes:
+
+```bash
+pip3 install python-docx
+python3 scripts/create_template.py
+```
+
+This generates a fresh template with all required docxtemplater tags.
 
 ## Usage
 
@@ -110,7 +116,6 @@ reports/YYYY-MM-DD_<customer-slug>_RUN-<shortid>/
 │       └── results.json          # Raw ScubaGear output
 ├── bundle.json                    # Normalized findings bundle
 ├── bundle.scored.json             # Bundle with security scores
-├── report.md                      # Generated Markdown report
 ├── report.docx                    # Final Word document
 └── logs/
     └── run.log                    # Execution logs
@@ -173,17 +178,13 @@ Findings are grouped into actionable themes:
 brew install powershell/tap/powershell
 ```
 
-**"pandoc not found"**
-```bash
-brew install pandoc
-```
-
 **"ScubaGear module not found"**
 - Ensure ScubaGear is cloned to `./ScubaGear` in your working directory
 - Or specify the path with `--scubagear-path`
 
 **"Template not found"**
-- Ensure `M365_Security_Assessment_Template.docx` exists in `templates/`
+- Ensure `report_template.docx` exists in `templates/`
+- Regenerate if needed: `python3 scripts/create_template.py`
 
 ### Logs
 

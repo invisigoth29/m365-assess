@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-m365-assess is a Node.js CLI tool that wraps ScubaGear (PowerShell-based M365 security scanner) to automate the complete assessment workflow: running ScubaGear, normalizing findings into a canonical JSON format, computing weighted security scores, mapping findings to security themes, and generating professional Word reports using pandoc. The entire workflow executes with a single command.
+m365-assess is a Node.js CLI tool that wraps ScubaGear (PowerShell-based M365 security scanner) to automate the complete assessment workflow: running ScubaGear, normalizing findings into a canonical JSON format, computing weighted security scores, mapping findings to security themes, and generating professional Word reports using native DOCX templating. The entire workflow executes with a single command.
 
 ## Essential Commands
 
@@ -47,25 +47,26 @@ jq . ./reports/YYYY-MM-DD_customer-name_RUN-xxxxx/bundle.scored.json
 # Verify PowerShell 7+
 pwsh --version
 
-# Verify pandoc
-pandoc --version
-
 # Check ScubaGear is cloned
 ls -la ./ScubaGear/PowerShell/ScubaGear/ScubaGear.psd1
+
+# Regenerate DOCX template (if needed)
+pip3 install python-docx
+python3 scripts/create_template.py
 ```
 
 ## Architecture
 
 ### Execution Flow
-The tool follows a strict 7-stage pipeline (see `audit.js:main()`):
+The tool follows a strict 6-stage pipeline (see `audit.js:main()`):
 
-1. **Preflight checks** (`lib/preflight.js`) - Validates all dependencies (pwsh, pandoc, ScubaGear, templates)
+1. **Preflight checks** (`lib/preflight.js`) - Validates all dependencies (pwsh, ScubaGear, templates)
 2. **Run ScubaGear** (`lib/run-scubagear.js`) - Spawns PowerShell process to execute ScubaGear module
 3. **Map to bundle** (`lib/map-to-bundle.js`) - Transforms raw ScubaGear JSON into normalized findings format with theme assignments
 4. **Calculate score** (`lib/score.js`) - Computes weighted pass ratio (Critical=10, High=7, Medium=4, Low=1)
 5. **Score movement** (`lib/score-movement.js`) - Compares current vs previous scores if `--previous` provided
 6. **Process themes** (`lib/theme-engine.js`) - Groups findings by security themes and assigns priorities
-7. **Render outputs** (`lib/render-md.js`, `lib/render-docx.js`) - Generates Markdown using Nunjucks templates, then converts to DOCX via pandoc
+7. **Render DOCX** (`lib/render-docx-native.js`) - Generates Word document directly from JSON using docxtemplater
 
 ### Key Concepts
 
@@ -96,8 +97,9 @@ The tool follows a strict 7-stage pipeline (see `audit.js:main()`):
 - `lib/theme-engine.js` - Theme definitions (THEME_DEFINITIONS object) and mapping logic
 - `lib/map-to-bundle.js` - Theme assignment via keyword matching (THEME_KEYWORD_RULES)
 - `lib/score.js` - Scoring algorithm (SEVERITY_WEIGHTS constant)
-- `templates/report_template_v2.md` - Nunjucks template for Markdown report
-- `templates/M365_Security_Assessment_Template.docx` - Word reference document for pandoc
+- `lib/render-docx-native.js` - Native DOCX rendering using docxtemplater
+- `templates/report_template.docx` - Word template with docxtemplater tags
+- `scripts/create_template.py` - Python script to regenerate DOCX template programmatically
 
 ## Development Guidelines
 
@@ -121,16 +123,26 @@ The tool follows a strict 7-stage pipeline (see `audit.js:main()`):
 - Always test with sample bundles to verify changes
 
 ### Template Customization
-- Markdown template uses Nunjucks syntax (variables: `{{ customer }}`, loops: `{% for %}`)
-- Word template styling applied via pandoc's `--reference-doc` flag
-- Edit Word template styles/headers/footers in DOCX, not in code
-- Test pandoc conversion after template changes: `pandoc report.md -o test.docx --reference-doc=template.docx`
+- DOCX template uses docxtemplater syntax:
+  - Simple variables: `{customer_name}`, `{security_score}`
+  - Conditionals: `{#has_high_risks}...{/has_high_risks}`
+  - Loops: `{#themes}{title}{/themes}`
+  - Array items: `{.}` for simple string arrays like remediation_steps
+- **Template Generation**: Use `python3 scripts/create_template.py` to regenerate template
+  - Requires: `pip3 install python-docx`
+  - Creates template programmatically with all docxtemplater tags
+  - Run this when structural changes are needed or template is corrupted
+- **Manual Editing**: Template can be edited directly in Word for styling/formatting changes
+  - Be careful not to break docxtemplater tags (e.g., don't split `{customer_name}` across XML elements)
+  - Styling, headers, footers, and formatting are preserved from the template
+- Test template changes by running the tool and checking generated DOCX
+- Context object built in `lib/render-docx-native.js:buildDocxContext()`
 
 ### Error Handling
 - Preflight checks fail-fast with clear error messages and installation instructions
 - All file I/O wrapped in try-catch with descriptive errors
 - ScubaGear failures captured in logs (`logs/run.log`) with stdout/stderr
-- Pandoc errors include full stderr output for debugging
+- Docxtemplater errors include tag offset information for debugging template issues
 
 ### Working with ScubaGear
 - ScubaGear is an external PowerShell module (cloned separately, not in node_modules)
@@ -142,13 +154,12 @@ The tool follows a strict 7-stage pipeline (see `audit.js:main()`):
 
 ### macOS (Primary Platform)
 - PowerShell installed via Homebrew: `brew install powershell/tap/powershell`
-- Pandoc installed via Homebrew: `brew install pandoc`
 - ScubaGear runs under pwsh (not Windows PowerShell)
+- Node.js dependencies (including docxtemplater) managed via npm
 
 ### Prerequisites
 This tool requires external dependencies not managed by npm:
 - **PowerShell 7+** (pwsh) - Required to execute ScubaGear
-- **Pandoc** - Required to convert Markdown to DOCX
 - **ScubaGear** - PowerShell module cloned separately (default: `./ScubaGear`)
 
 ### File Locations
@@ -165,7 +176,6 @@ reports/YYYY-MM-DD_<customer-slug>_RUN-<id>/
 ├── raw/scubagear/results.json  # Raw ScubaGear output
 ├── bundle.json                  # Normalized findings
 ├── bundle.scored.json           # Scored bundle (save for --previous)
-├── report.md                    # Generated Markdown
 ├── report.docx                  # Final Word document
 └── logs/run.log                 # Execution logs
 ```
@@ -208,5 +218,5 @@ process.on('close', (code) => {
 import { createRunFolder } from './utils.js';
 
 const paths = createRunFolder(config.outputDir, config.customer);
-// Returns: { runFolder, runId, bundlePath, scoredBundlePath, reportMdPath, reportDocxPath, logPath, ... }
+// Returns: { runFolder, runId, bundlePath, scoredBundlePath, reportDocxPath, logPath, ... }
 ```
