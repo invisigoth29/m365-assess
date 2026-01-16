@@ -50,6 +50,9 @@ pwsh --version
 # Check ScubaGear is cloned
 ls -la ./ScubaGear/PowerShell/ScubaGear/ScubaGear.psd1
 
+# Install ScubaGear PowerShell dependencies (for full product coverage)
+bash scripts/install-scubagear-deps.sh
+
 # Regenerate DOCX template (if needed)
 pip3 install python-docx
 python3 scripts/create_template.py
@@ -94,12 +97,14 @@ The tool follows a strict 6-stage pipeline (see `audit.js:main()`):
 
 ### Critical Files
 - `audit.js` - Main entry point and orchestration
+- `lib/run-scubagear.js` - ScubaGear execution wrapper with parameter configuration
 - `lib/theme-engine.js` - Theme definitions (THEME_DEFINITIONS object) and mapping logic
 - `lib/map-to-bundle.js` - Theme assignment via keyword matching (THEME_KEYWORD_RULES)
 - `lib/score.js` - Scoring algorithm (SEVERITY_WEIGHTS constant)
 - `lib/render-docx-native.js` - Native DOCX rendering using docxtemplater
 - `templates/report_template.docx` - Word template with docxtemplater tags
 - `scripts/create_template.py` - Python script to regenerate DOCX template programmatically
+- `scripts/install-scubagear-deps.sh` - Installs PowerShell modules for full product coverage
 
 ## Development Guidelines
 
@@ -161,6 +166,10 @@ The tool follows a strict 6-stage pipeline (see `audit.js:main()`):
 This tool requires external dependencies not managed by npm:
 - **PowerShell 7+** (pwsh) - Required to execute ScubaGear
 - **ScubaGear** - PowerShell module cloned separately (default: `./ScubaGear`)
+- **Optional PowerShell modules** - For full M365 product coverage:
+  - Microsoft.PowerApps.PowerShell (PowerPlatform)
+  - Microsoft.Online.SharePoint.PowerShell (SharePoint Online)
+  - Install with: `bash scripts/install-scubagear-deps.sh`
 
 ### File Locations
 - Tool templates: `<tool-dir>/templates/` (where tool is installed)

@@ -22,3 +22,21 @@ python3 scripts/create_template.py
 - Rebuilding template after structural changes
 - Fixing corrupted templates
 
+## install-scubagear-deps.sh
+
+Installs PowerShell module dependencies for full ScubaGear product coverage.
+
+**Usage:**
+```bash
+bash scripts/install-scubagear-deps.sh
+```
+
+**What it installs:**
+- Microsoft.PowerApps.PowerShell - For PowerPlatform assessments
+- Microsoft.Online.SharePoint.PowerShell - For SharePoint Online assessments
+
+**When to use:**
+- Initial setup
+- When seeing warnings about missing PowerPlatform or SharePoint modules
+- To enable full M365 product coverage
+

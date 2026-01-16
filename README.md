@@ -41,6 +41,23 @@ git clone https://github.com/cisagov/ScubaGear.git
 
 Or specify a custom path with `--scubagear-path`.
 
+#### Install ScubaGear Dependencies (Recommended)
+
+For full M365 product coverage (PowerPlatform and SharePoint), install additional PowerShell modules:
+
+```bash
+bash scripts/install-scubagear-deps.sh
+```
+
+Or install manually:
+
+```bash
+pwsh -Command "Install-Module -Name Microsoft.PowerApps.PowerShell -Force -AllowClobber -Scope CurrentUser"
+pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber -Scope CurrentUser"
+```
+
+Without these modules, PowerPlatform and SharePoint will be omitted from assessments.
+
 ## Installation
 
 ```bash
@@ -186,6 +203,10 @@ brew install powershell/tap/powershell
 **"ScubaGear module not found"**
 - Ensure ScubaGear is cloned to `./ScubaGear` in your working directory
 - Or specify the path with `--scubagear-path`
+
+**"PowerPlatform/SharePoint will be omitted"**
+- Install missing PowerShell modules: `bash scripts/install-scubagear-deps.sh`
+- Or install manually (see ScubaGear Setup section)
 
 **"Template not found"**
 - Ensure `report_template.docx` exists in `templates/`
