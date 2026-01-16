@@ -113,7 +113,12 @@ Each run creates a timestamped folder:
 reports/YYYY-MM-DD_<customer-slug>_RUN-<shortid>/
 ├── raw/
 │   └── scubagear/
-│       └── results.json          # Raw ScubaGear output
+│       ├── results.json          # Raw ScubaGear JSON output
+│       └── scuba_output/         # ScubaGear HTML reports and other files
+│           └── M365BaselineConformance_YYYY_MM_DD_HH_MM_SS/
+│               ├── BaselineReports.html
+│               ├── IndividualReports/
+│               └── ...
 ├── bundle.json                    # Normalized findings bundle
 ├── bundle.scored.json             # Bundle with security scores
 ├── report.docx                    # Final Word document

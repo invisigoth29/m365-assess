@@ -53,6 +53,7 @@ function printSummary(paths, bundle, startTime) {
   ─────────────
   📁 Run Folder:    ${paths.runFolder}
   📄 Raw Results:   ${paths.rawScubaGearDir}/results.json
+  🌐 ScubaGear HTML: ${paths.rawScubaGearDir}/scuba_output/
   📋 Bundle:        ${paths.bundlePath}
   📋 Scored Bundle: ${paths.scoredBundlePath}
   📑 Report (DOCX): ${paths.reportDocxPath}

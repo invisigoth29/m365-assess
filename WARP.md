@@ -173,7 +173,9 @@ This tool requires external dependencies not managed by npm:
 Each run creates a timestamped folder with complete audit trail:
 ```
 reports/YYYY-MM-DD_<customer-slug>_RUN-<id>/
-├── raw/scubagear/results.json  # Raw ScubaGear output
+├── raw/scubagear/
+│   ├── results.json             # Raw ScubaGear JSON output
+│   └── scuba_output/            # ScubaGear HTML reports (BaselineReports.html, etc.)
 ├── bundle.json                  # Normalized findings
 ├── bundle.scored.json           # Scored bundle (save for --previous)
 ├── report.docx                  # Final Word document
