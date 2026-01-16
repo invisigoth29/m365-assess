@@ -41,22 +41,28 @@ git clone https://github.com/cisagov/ScubaGear.git
 
 Or specify a custom path with `--scubagear-path`.
 
-#### Install ScubaGear Dependencies (Recommended)
+#### PowerShell Modules for Full Coverage
 
-For full M365 product coverage (PowerPlatform and SharePoint), install additional PowerShell modules:
+**The tool automatically installs missing PowerShell modules during preflight checks** to ensure full M365 product coverage.
+
+Required modules:
+- `Microsoft.PowerApps.PowerShell` (PowerPlatform assessment)
+- `Microsoft.Online.SharePoint.PowerShell` (SharePoint Online assessment)
+
+If automatic installation fails, install manually:
 
 ```bash
 bash scripts/install-scubagear-deps.sh
 ```
 
-Or install manually:
+Or individually:
 
 ```bash
 pwsh -Command "Install-Module -Name Microsoft.PowerApps.PowerShell -Force -AllowClobber -Scope CurrentUser"
 pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber -Scope CurrentUser"
 ```
 
-Without these modules, PowerPlatform and SharePoint will be omitted from assessments.
+**Note:** Without these modules, PowerPlatform and SharePoint will be skipped during assessments.
 
 ## Installation
 
